@@ -249,7 +249,7 @@ function deleteLastChar() {
 // 更新金额显示
 function updateAmountDisplay() {
     let displayAmount = currentAmount;
-    const maxBalance = parseFloat(userData.trxBalance || '0');
+    const maxBalance = parseFloat(userData.usdtBalance || '0');
 
     // 如果输入的金额大于余额，设置为最大余额
     if (parseFloat(displayAmount) > maxBalance) {
