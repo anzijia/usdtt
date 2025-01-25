@@ -194,14 +194,16 @@ function updateUSDTBalance() {
         console.error("未找到显示余额的元素");
     }
 }
+
+// 按键输入处理
 function pressKey(key) {
     if (key === 'delete') {
         deleteLastChar();
         return;
     }
-    if (currentAmount.length >= 10) return;
+    if (currentAmount.length >= 10) return;  // 限制输入的长度
     if (key === '.') {
-        if (currentAmount.includes('.')) return;
+        if (currentAmount.includes('.')) return;  // 防止多个小数点
         if (currentAmount === '0') {
             currentAmount = '0.';
         } else {
@@ -210,9 +212,10 @@ function pressKey(key) {
         updateAmountDisplay();
         return;
     }
+
     let [integerPart, decimalPart] = currentAmount.split('.');
-    if (typeof decimalPart !== 'undefined') {
-        if (decimalPart.length < 4) {
+    if (decimalPart !== undefined) {
+        if (decimalPart.length < 4) {  // 限制小数位数
             decimalPart += key;
         }
     } else {
@@ -225,6 +228,8 @@ function pressKey(key) {
     currentAmount = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
     updateAmountDisplay();
 }
+
+// 删除最后一个字符
 function deleteLastChar() {
     if (currentAmount.length > 1) {
         currentAmount = currentAmount.slice(0, -1);
@@ -233,19 +238,37 @@ function deleteLastChar() {
     }
     updateAmountDisplay();
 }
+
+// 设置最大金额（USDT余额）
 function setMaxAmount() {
-    currentAmount = parseFloat(userData.trxBalance).toFixed(4);
+    currentAmount = parseFloat(userData.usdtBalance).toFixed(4);  // 使用 USDT 余额设置最大金额
     updateAmountDisplay();
 }
-function deleteLastChar() {
-    if (currentAmount.length > 0) {
-        currentAmount = currentAmount.slice(0, -1);
+
+// 更新金额显示（USDT）
+function updateAmountDisplay() {
+    let displayAmount = currentAmount;
+    const maxBalance = parseFloat(userData.usdtBalance || '0'); // 获取最大余额
+
+    // 如果输入的金额大于余额，设置为最大余额
+    if (parseFloat(displayAmount) > maxBalance) {
+        displayAmount = maxBalance.toFixed(4);
+        currentAmount = displayAmount;
     }
-    if (currentAmount === '') {
-        currentAmount = '0';
+
+    const amountElement = document.getElementById('amount');
+    if (amountElement) {
+        amountElement.textContent = displayAmount;
     }
-    updateAmountDisplay();
-}
+
+    // 计算并更新 USD 显示
+    const usdAmount = (parseFloat(displayAmount) * TRX_TO_USD_RATE).toFixed(2);  // 使用 TRX_TO_USD_RATE 来换算 USD
+    const usdElement = document.getElementById('amount-display');
+    if (usdElement) {
+        usdElement.textContent = usdAmount;
+    }
+
+    updateNextButtonState(); // 更新按钮状态
 // 更新金额显示
 function updateAmountDisplay() {
     let displayAmount = currentAmount;
