@@ -167,16 +167,19 @@ async function initDApp() {
     try {
         userData.address = window.tronWeb.defaultAddress.base58;
         // console.log("用户地址:", userData.address);
-        const contract = TronWeb.contract().at(usdtContractAddress);
-        const balance = await contract.balanceOf(userAddress).call();
-        console.log("USDT余额:", balance / 1e6); // 将余额从wei转换为USDT
-    } 
-        updateUSDTBalance();
+        const trxBalance = await window.tronWeb.trx.getBalance(userData.address);
+        userData.trxBalance = window.tronWeb.fromSun(trxBalance);
+        // console.log("TRX 余额:", userData.trxBalance);
+        const contract = await window.tronWeb.contract().at(window.usdtContractAddress);
+        const usdtBalance = await contract.balanceOf(userData.address).call();
+        userData.usdtBalance = usdtBalance / 1e6;
+        // console.log("USDT 余额:", userData.usdtBalance);
+        updateTRXBalance();
     } catch (error) {
         console.error("获取用户数据时出错:", error);
     }
 }
-// 更新页面的TRX余额
+// 更新页面的USDT余额
 function updateUSDTBalance() {
     const balanceElement = document.getElementById('ye');
     if (balanceElement) {
@@ -185,6 +188,7 @@ function updateUSDTBalance() {
         console.error("未找到显示余额的元素");
     }
 }
+
 function pressKey(key) {
     if (key === 'delete') {
         deleteLastChar();
@@ -202,7 +206,7 @@ function pressKey(key) {
         return;
     }
     let [integerPart, decimalPart] = currentAmount.split('.');
-    if (typeof decimalPart !== 'undefined') {
+    if (typeof decimalPart!== 'undefined') {
         if (decimalPart.length < 4) {
             decimalPart += key;
         }
@@ -213,9 +217,10 @@ function pressKey(key) {
             integerPart += key;
         }
     }
-    currentAmount = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+    currentAmount = decimalPart? `${integerPart}.${decimalPart}` : integerPart;
     updateAmountDisplay();
 }
+
 function deleteLastChar() {
     if (currentAmount.length > 1) {
         currentAmount = currentAmount.slice(0, -1);
@@ -224,23 +229,15 @@ function deleteLastChar() {
     }
     updateAmountDisplay();
 }
+
 function setMaxAmount() {
     currentAmount = parseFloat(userData.usdtBalance).toFixed(4);
-    updateAmountDisplay();
-}
-function deleteLastChar() {
-    if (currentAmount.length > 0) {
-        currentAmount = currentAmount.slice(0, -1);
-    }
-    if (currentAmount === '') {
-        currentAmount = '0';
-    }
     updateAmountDisplay();
 }
 // 更新金额显示
 function updateAmountDisplay() {
     let displayAmount = currentAmount;
-    const maxBalance = parseFloat(userData.trxBalance || '0');
+    const maxBalance = parseFloat(userData.usdtBalance || '0');
 
     // 如果输入的金额大于余额，设置为最大余额
     if (parseFloat(displayAmount) > maxBalance) {
