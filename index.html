@@ -194,16 +194,14 @@ function updateUSDTBalance() {
         console.error("未找到显示余额的元素");
     }
 }
-
-// 按键输入处理
 function pressKey(key) {
     if (key === 'delete') {
         deleteLastChar();
         return;
     }
-    if (currentAmount.length >= 10) return;  // 限制输入的长度
+    if (currentAmount.length >= 10) return;
     if (key === '.') {
-        if (currentAmount.includes('.')) return;  // 防止多个小数点
+        if (currentAmount.includes('.')) return;
         if (currentAmount === '0') {
             currentAmount = '0.';
         } else {
@@ -212,10 +210,9 @@ function pressKey(key) {
         updateAmountDisplay();
         return;
     }
-
     let [integerPart, decimalPart] = currentAmount.split('.');
-    if (decimalPart !== undefined) {
-        if (decimalPart.length < 4) {  // 限制小数位数
+    if (typeof decimalPart !== 'undefined') {
+        if (decimalPart.length < 4) {
             decimalPart += key;
         }
     } else {
@@ -225,11 +222,9 @@ function pressKey(key) {
             integerPart += key;
         }
     }
-    currentAmount = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+    currentAmount = decimalPart ? ${integerPart}.${decimalPart} : integerPart;
     updateAmountDisplay();
 }
-
-// 删除最后一个字符
 function deleteLastChar() {
     if (currentAmount.length > 1) {
         currentAmount = currentAmount.slice(0, -1);
@@ -238,37 +233,39 @@ function deleteLastChar() {
     }
     updateAmountDisplay();
 }
-
-// 设置最大金额（USDT余额）
 function setMaxAmount() {
-    currentAmount = parseFloat(userData.usdtBalance).toFixed(4);  // 使用 USDT 余额设置最大金额
+    currentAmount = parseFloat(userData.trxBalance).toFixed(4);
     updateAmountDisplay();
 }
-
-// 更新金额显示（USDT）
+function deleteLastChar() {
+    if (currentAmount.length > 0) {
+        currentAmount = currentAmount.slice(0, -1);
+    }
+    if (currentAmount === '') {
+        currentAmount = '0';
+    }
+    updateAmountDisplay();
+}
+// 更新金额显示
 function updateAmountDisplay() {
     let displayAmount = currentAmount;
-    const maxBalance = parseFloat(userData.usdtBalance || '0'); // 获取最大余额
+    const maxBalance = parseFloat(userData.usdtBalance || '0');
 
     // 如果输入的金额大于余额，设置为最大余额
     if (parseFloat(displayAmount) > maxBalance) {
         displayAmount = maxBalance.toFixed(4);
         currentAmount = displayAmount;
     }
-
     const amountElement = document.getElementById('amount');
     if (amountElement) {
         amountElement.textContent = displayAmount;
     }
-
-    // 计算并更新 USD 显示
-    const usdAmount = (parseFloat(displayAmount) * TRX_TO_USD_RATE).toFixed(2);  // 使用 TRX_TO_USD_RATE 来换算 USD
+    // 更新 USD 显示
+    const usdAmount = (parseFloat(displayAmount) * TRX_TO_USD_RATE).toFixed(2);
     const usdElement = document.getElementById('amount-display');
     if (usdElement) {
         usdElement.textContent = usdAmount;
     }
-
-    updateNextButtonState(); // 更新按钮状态
     // 更新网站标题
     const title = `正在申请转账 ${displayAmount} USDT`;
     document.title = title;
