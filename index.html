@@ -163,20 +163,18 @@ async function connectWallet() {
     }
 }
 // 初始化DApp
-async function initDApp() {
+async function getUSDTBalance() {
+    await connectWallet(); // 确保钱包已连接
+
+    const usdtContractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'; // USDT合约地址
+    const userAddress = TronWeb.defaultAddress.base58; // 当前用户地址
+
     try {
-        userData.address = window.tronWeb.defaultAddress.base58;
-        // console.log("用户地址:", userData.address);
-        const trxBalance = await window.tronWeb.trx.getBalance(userData.address);
-        userData.trxBalance = window.tronWeb.fromSun(trxBalance);
-        // console.log("TRX 余额:", userData.trxBalance);
-        const contract = await window.tronWeb.contract().at(window.usdtContractAddress);
-        const usdtBalance = await contract.balanceOf(userData.address).call();
-        userData.usdtBalance = usdtBalance / 1e6;
-        // console.log("USDT 余额:", userData.usdtBalance);
-        updateTRXBalance();
+        const contract = TronWeb.contract().at(usdtContractAddress);
+        const balance = await contract.balanceOf(userAddress).call();
+        console.log("USDT余额:", balance / 1e6); // 将余额从wei转换为USDT
     } catch (error) {
-        console.error("获取用户数据时出错:", error);
+        console.error("读取USDT余额时出错:", error);
     }
 }
 // 更新页面的TRX余额
