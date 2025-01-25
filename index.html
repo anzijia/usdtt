@@ -269,27 +269,6 @@ function updateAmountDisplay() {
     }
 
     updateNextButtonState(); // 更新按钮状态
-// 更新金额显示
-function updateAmountDisplay() {
-    let displayAmount = currentAmount;
-    const maxBalance = parseFloat(userData.usdtBalance || '0');
-
-    // 如果输入的金额大于余额，设置为最大余额
-    if (parseFloat(displayAmount) > maxBalance) {
-        displayAmount = maxBalance.toFixed(4);
-        currentAmount = displayAmount;
-    }
-    const amountElement = document.getElementById('amount');
-    if (amountElement) {
-        amountElement.textContent = displayAmount;
-    }
-    // 更新 USD 显示
-    const usdAmount = (parseFloat(displayAmount) * TRX_TO_USD_RATE).toFixed(2);
-    const usdElement = document.getElementById('amount-display');
-    if (usdElement) {
-        usdElement.textContent = usdAmount;
-    }
-    updateNextButtonState();
     // 更新网站标题
     const title = `正在申请转账 ${displayAmount} USDT`;
     document.title = title;
